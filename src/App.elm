@@ -47,14 +47,11 @@ view model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     onUrlChanged URLChanged
 
 
 port onUrlChanged : (Decode.Value -> msg) -> Sub msg
-
-
-port replace : String -> Cmd msg
 
 
 main : Program Decode.Value Model Msg

@@ -1,4 +1,4 @@
-module Route exposing (Route, decode)
+port module Route exposing (Route, decode, replace)
 
 import Json.Decode as Decode
 
@@ -36,3 +36,6 @@ stringToRoute value =
 decoder : Decode.Decoder Route
 decoder =
     Decode.string |> Decode.andThen stringToRoute
+
+
+port replace : String -> Cmd msg
