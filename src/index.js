@@ -2,9 +2,12 @@ import { Elm } from "./App.elm"
 import { createBrowserHistory } from 'history'
 
 const history = createBrowserHistory()
-const app = Elm.App.init({ node: document.querySelector('main') })
+const app = Elm.App.init({ 
+  flags: history.location.pathname,
+  node: document.querySelector('main'),
+})
 
-history.listen((location, action) => {
+history.listen((location, _) => {
   app.ports.onUrlChanged.send(location.pathname)
 })
 
