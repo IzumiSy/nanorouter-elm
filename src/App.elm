@@ -1,49 +1,83 @@
 port module App exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, text)
 import Json.Decode as Decode
+import Pages.A as PageA
+import Pages.B as PageB
 import Route
 
 
-type alias Model =
-    { route : Route.Route
-    , count : Int
-    }
+
+-- model
+
+
+type Model
+    = Top
+    | PageA PageA.Model
+    | PageB PageB.Model
 
 
 initialModel : Decode.Value -> ( Model, Cmd Msg )
 initialModel flag =
-    ( { route = Route.decode flag, count = 0 }, Cmd.none )
+    ( changeRouteTo (Route.decode flag), Cmd.none )
+
+
+
+-- update
 
 
 type Msg
-    = Increment
-    | Decrement
-    | URLChanged Decode.Value
+    = URLChanged Decode.Value
+    | ChangeURL Route.Route
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            ( { model | count = model.count + 1 }, Cmd.none )
+        URLChanged nextRoute ->
+            ( changeRouteTo (Route.decode nextRoute), Cmd.none )
 
-        Decrement ->
-            ( { model | count = model.count - 1 }, Cmd.none )
+        ChangeURL route ->
+            ( model, Route.replace route )
 
-        URLChanged value ->
-            ( { model | route = Route.decode value }, Cmd.none )
+
+changeRouteTo : Route.Route -> Model
+changeRouteTo route =
+    case route of
+        Route.Top ->
+            Top
+
+        Route.PageA ->
+            PageA PageA.init
+
+        Route.PageB ->
+            PageB PageB.init
+
+
+
+-- view
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick Increment ] [ text "+1" ]
-        , div [] [ text <| String.fromInt model.count ]
-        , button [ onClick Decrement ] [ text "-1" ]
-        ]
+    case model of
+        Top ->
+            div []
+                [ text "This is Top"
+                , div [] [ Route.link (ChangeURL Route.PageA) "PageA" ]
+                , div [] [ Route.link (ChangeURL Route.PageB) "PageB" ]
+                ]
+
+        PageA pageModel ->
+            PageA.view pageModel
+
+        PageB pageModel ->
+            PageB.view pageModel
+
+
+
+-- port
 
 
 subscriptions : Model -> Sub Msg
@@ -52,6 +86,10 @@ subscriptions _ =
 
 
 port onUrlChanged : (Decode.Value -> msg) -> Sub msg
+
+
+
+-- main
 
 
 main : Program Decode.Value Model Msg

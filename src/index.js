@@ -11,6 +11,6 @@ history.listen((location, _) => {
   app.ports.onUrlChanged.send(location.pathname)
 })
 
-app.ports.replace.subscribe(path => {
+app.ports.replaceInternal.subscribe(path => {
   history.push(path)
 })
